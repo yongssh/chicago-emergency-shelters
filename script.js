@@ -167,7 +167,7 @@ function ticked() {
 }
 
 
-/* Update to a given period  */
+/* Update to a given period ??? TKTK figure out the overlay problem*/
 function updatePeriod(index, instant = false) {
   const frame = cumulativePerPeriod[index];
   if (!frame) return;
@@ -263,7 +263,7 @@ function setupScroller() {
 }
 
 
-/* Tooltip helpers */
+/* tooltip helpers */
 function showTip(event, d) {
   tooltipEl
     .style("opacity", 1)
@@ -275,7 +275,6 @@ function showTip(event, d) {
 function hideTip() {
   tooltipEl.style("opacity", 0).attr("aria-hidden", "true");
 }
-/* Shelter Grid Breakdown */
 
 function initShelterGrid() {
   d3.csv("data/summary_by_category.csv").then(data => {

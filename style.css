@@ -189,6 +189,14 @@ main {
   margin-top: 0.5rem;
 }
 
+footer {
+  background-color: #e7e7eb;
+  text-align: center;
+  padding: 1em;
+  font-size: 0.9em;
+  color: #383886;
+  /* border-top: 1px solid #ddd; */
+}
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .scrolly {
