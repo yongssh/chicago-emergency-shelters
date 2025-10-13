@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Chicago Emergency Shelter Grievances</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
+</head>
+
+<body>
+  <main>
+    <header class="page-header">
+      <h1>Grievances Filed Against Chicago Emergency Shelters</h1>
+      <p class="dek">
+        When thousands of asylum seekers began arriving in Chicago in 2023, the city converted public buildings into
+        Emergency Temporary Shelters. These sites, meant to be short-term havens, quickly became home for months at a
+        time to families waiting for more permanent housing.
+        By spring 2024, the City of Chicago began publicly reporting grievances filed from inside these shelters—formal
+        complaints about conditions, staff, supplies, safety, and policy.
+        Scroll down to move through biweekly reporting periods. Data from the
+        <a
+          href="https://data.cityofchicago.org/Health-Human-Services/Emergency-Temporary-Shelters-Grievances-Filed/nuek-9zzn/data_preview">
+          Chicago Data Portal
+        </a>.
+      </p>
+    </header>
+
+
+    <!-- SCROLLY SECTION -->
+    <section id="scrolly-periods" class="scrolly">
+
+      <div class="graphic">
+        <svg id="viz" aria-label="Biweekly cumulative grievances by shelter"></svg>
+        <div id="overlay-period" class="overlay-period"></div>
+        <div id="legend" class="legend"></div>
+      </div>
+
+      <div id="steps" class="sections">
+        <div class="step" data-index="0">
+          <p>In April 2024, the city began recording formal grievances from emergency shelters housing new arrivals.</p>
+        </div>
+
+        <div class="step" data-index="1">
+          <p>By early May, grievances began accumulating across a few shelters, mostly around supplies and staff issues.
+          </p>
+        </div>
+
+        <div class="step" data-index="2">
+          <p>Mid-May brought increases at Halsted and Ogden as more residents reported policy or security concerns.</p>
+        </div>
+
+        <div class="step" data-index="3">
+          <p>By June, larger shelters like AIC and Elston became major hubs of reported grievances.</p>
+        </div>
+
+        <div class="step" data-index="4">
+          <p>Totals continued to rise citywide through the summer.</p>
+        </div>
+
+        <div class="step" data-index="5">
+          <p>
+            Some shelters have since closed. For example, Daley College shelter closed in
+            <a href="https://www.cbsnews.com/chicago/news/chicago-closes-daley-college-migrant-shelter-asylum-seekers/">July
+              2024
+            </a>,
+            after operating a little over a year.
+          </p>
+        </div>
+        <div class="step" data-index="6"></div>
+        <div class="step" data-index="7"></div>
+        <div class="step" data-index="8"></div>
+        <div class="step" data-index="9"></div>
+        <div class="step" data-index="10"></div>
+        <div class="step" data-index="11"></div>
+        <div class="step" data-index="12"></div>
+        <div class="step" data-index="13">
+          <p>
+            In late October, the City announced that it would end its migrant shelter system by the end of the year.
+            Mayor Brandon Johnson announced that services would be merged with the city's homeless shelters.
+            According to Block Club Chicago's <a
+              href="https://blockclubchicago.org/2024/10/21/city-closing-migrant-shelter-system-by-end-of-the-year/">coverage</a>,
+            13 active shelters run by the city and state housed 4,996 people, with 21 awaiting placement, at the time of
+            the story.
+          </p>
+        </div>
+        <div class="step" data-index="14"></div>
+        <div class="step" data-index="15">
+          <p>
+            On November 20th, the City announced the imminent demobilization of the New Arrivals system in
+            <span class="nowrap">a <a
+                href="https://www.chicago.gov/content/dam/city/depts/obm/supp_info/2025Budget/2025ThroughTheChairResponseMaster/50%20-%20Department%20of%20Family%20and%20Support%20Services%20Master.pdf">memorandum</a></span>.
+            Of the 12 then-operational New Arrival shelters, they planned to reduce the number to five&mdash;three run
+            by the city and two by the state&mdash;and close the remaining seven by the end of the year, following their
+            previous plan.
+          </p>
+
+          <p>
+            They also announced that there were three shelters that would “remain open and merge into the unified
+            shelter system”: American Islamic College (AIC), Young Women’s Leadership Academy (YWLA), and the
+            Metropolitan Water Reclamation District (MWRD).
+          </p>
+        </div>
+
+        <div class="step" data-index="12"></div>
+
+
+      </div>
+      </div>
+    </section>
+
+
+    <!-- SHELTER GRID (Donuts) -->
+    <section id="grid-shelters" class="shelter-grid-section">
+      <div class="grid-header">
+        <h2>Shelter Profiles: Grievance Composition</h2>
+        <p>Each donut shows the share of grievance categories reported by that shelter.</p>
+      </div>
+      <div id="shelterGrid" class="shelter-grid"></div>
+    </section>
+
+  </main>
+
+  <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
