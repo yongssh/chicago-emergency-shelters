@@ -103,21 +103,14 @@ main {
   .scrolly {
     grid-template-columns: 1fr;
   }
-
   .graphic {
-    position: relative;
-    height: 70vh;
-    min-height: 420px;
+    position: sticky;  
+    top: 0;
+    height: 50vh; 
+    min-height: 400px;
   }
-
   .step {
-    min-height: auto;
+    min-height: 60vh;  
     padding: 1.2rem 0;
-  }
-
-  .overlay-period,
-  .legend {
-    left: 10px;
-    right: 10px;
   }
 }
