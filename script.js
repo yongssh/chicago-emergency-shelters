@@ -39,9 +39,7 @@ let sheltersList = [];
 const parseDate = d => d ? new Date(d) : null;
 const fShort = d3.timeFormat("%b %d, %Y");
 
-/* =====================
-   Load data
-===================== */
+// load data
 
 d3.csv("data/grievances.csv").then(raw => {
   const rows = raw
@@ -171,6 +169,10 @@ function updatePeriod(index, instant = false) {
   currentIndex = index;
   overlayEl.textContent = `Period: ${fShort(frame.period)}`;
 
+  // Remove active class from all steps, add it to current one
+  d3.selectAll(".step").classed("active", false);
+  d3.selectAll(`.step[data-index="${index}"]`).classed("active", true);
+
   frame.nodes.forEach(d => Object.assign(d, shelterPositions.get(d.shelter)));
 
   nodeSel = g.select(".nodes")
@@ -247,3 +249,67 @@ function showTip(event, d) {
 function hideTip() {
   tooltipEl.style("opacity", 0);
 }
+
+function checkMobileBreakpoint() {
+  isMobile = window.innerWidth < 900;
+}
+
+
+function initShelterGrid() {
+  d3.csv("data/summary_by_category.csv").then(data => {
+    const container = d3.select("#shelterGrid");
+
+    // define cats, skip first column
+    const categories = data.columns.slice(1);
+    const color = d3.scaleOrdinal()
+      .domain(categories)
+      .range(d3.schemeTableau10.concat(d3.schemeSet2).slice(0, categories.length));
+
+    const tooltip = d3.select("body").append("div").attr("class", "tooltip");
+
+    data.forEach(d => {
+      // transform row into key-value pairs
+      const entries = categories.map(k => ({ key: k, value: +d[k] || 0 }));
+      const total = d3.sum(entries, e => e.value);
+      // skip empty shelters
+      if (total === 0) return; 
+
+      const card = container.append("div").attr("class", "shelter-card");
+      const svg = card.append("svg").attr("viewBox", "0 0 120 120");
+      const g = svg.append("g").attr("transform", "translate(60,60)");
+
+      const pie = d3.pie()
+        .sort(null)
+        .value(e => e.value);
+
+      const arc = d3.arc()
+        .innerRadius(25)
+        .outerRadius(55);
+
+      const arcs = g.selectAll("path")
+        .data(pie(entries))
+        .join("path")
+        .attr("fill", e => color(e.data.key))
+        .attr("d", arc)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 0.8)
+        .on("mousemove", (event, e) => {
+          tooltip
+            .style("opacity", 1)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 10) + "px")
+            .html(`
+              <strong>${d["Emergency Temporary Shelter"]}</strong><br/>
+              ${e.data.key}: ${e.data.value.toLocaleString()}
+            `);
+        })
+        .on("mouseout", () => tooltip.style("opacity", 0));
+
+      // add label underneath
+      card.append("div").attr("class", "shelter-name")
+        .text(d["Emergency Temporary Shelter"]);
+    });
+  });
+}
+
+initShelterGrid();

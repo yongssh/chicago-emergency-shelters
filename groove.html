@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Record Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: linear-gradient(135deg, #FFB366 0%, #FF9944 25%, #FF8833 50%, #FFA855 75%, #FFB366 100%);
+            background-size: 400% 400%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: gradientShift 15s ease infinite;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .player-wrapper {
+            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+            border-radius: 40px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 0 60px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.9);
+            border: 2px solid #111;
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .player-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            border-radius: 40px 40px 0 0;
+        }
+
+        .vinyl-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            min-height: 320px;
+            position: relative;
+        }
+
+        .vinyl {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1a1a1a, #000000);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                inset 0 -8px 20px rgba(0, 0, 0, 0.8),
+                inset 0 2px 5px rgba(255, 255, 255, 0.05);
+            border: 3px solid #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vinyl.playing {
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            background: repeating-conic-gradient(
+                from 0deg,
+                #0a0a0a 0deg 2deg,
+                #1a1a1a 2deg 4deg
+            );
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+        }
+
+        .vinyl::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #FF5533, #CC3322, #881111);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.7),
+                inset 0 -2px 8px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            z-index: 2;
+        }
+
+        .vinyl.placeholder {
+            opacity: 0.6;
+            border-color: #333;
+        }
+
+        .vinyl.placeholder::before {
+            opacity: 0.4;
+        }
+
+        .needle {
+            position: absolute;
+            width: 8px;
+            height: 120px;
+            background: linear-gradient(90deg, #c0a080 0%, #a0805f 50%, #c0a080 100%);
+            border-radius: 4px;
+            right: 30px;
+            top: -20px;
+            transform-origin: right top;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        .needle.active {
+            transform: rotate(-20deg);
+        }
+
+        .control-panel {
+            background: linear-gradient(180deg, #333 0%, #222 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid #555;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .info-display {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .track-name {
+            color: #FF5533;
+            font-family: 'Righteous', cursive;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 2px 4px rgba(255, 85, 51, 0.3);
+        }
+
+        .track-time {
+            color: #888;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            background: linear-gradient(145deg, #444, #333);
+            border: none;
+            color: #FF5533;
+            padding: 0.9rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            border: 1px solid #555;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(145deg, #555, #444);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            color: #FF6644;
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            margin-top: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid #333;
+            cursor: pointer;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF5533, #FF7755);
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(255, 85, 51, 0.6);
+        }
+
+        .drop-zone {
+            background: linear-gradient(135deg, rgba(255, 85, 51, 0.1), rgba(255, 119, 85, 0.1));
+            border: 2px dashed #FF5533;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #FF5533;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            background: linear-gradient(135deg, rgba(255, 85, 51, 0.2), rgba(255, 119, 85, 0.2));
+            border-color: #FF7755;
+            transform: scale(1.02);
+        }
+
+        .drop-zone-text {
+            text-transform: uppercase;
+            font-size: 0.95rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .title {
+            color: #FF5533;
+            font-family: 'Righteous', cursive;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 
+                0 4px 0 rgba(0, 0, 0, 0.3),
+                0 6px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .player-wrapper {
+                padding: 1.5rem;
+            }
+
+            .vinyl {
+                width: 220px;
+                height: 220px;
+            }
+
+            .title {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+            }
+
+            button {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">⬤ GROOVE BOX ⬤</h1>
+        
+        <div class="player-wrapper">
+            <div class="vinyl-container">
+                <div class="needle"></div>
+                <div class="vinyl placeholder" id="vinyl"></div>
+            </div>
+
+            <div class="control-panel">
+                <div class="info-display">
+                    <div class="track-name" id="trackName">NO TRACK LOADED</div>
+                    <div class="track-time" id="trackTime">--:-- / --:--</div>
+                </div>
+
+                <div class="controls">
+                    <button id="prevBtn" disabled>⏮ PREV</button>
+                    <button id="playBtn" disabled>▶ PLAY</button>
+                    <button id="stopBtn" disabled>⏹ STOP</button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-text">📀 DROP YOUR MP3 HERE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        const audio = document.getElementById('audioPlayer');
+        const vinyl = document.getElementById('vinyl');
+        const needle = document.querySelector('.needle');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const trackName = document.getElementById('trackName');
+        const trackTime = document.getElementById('trackTime');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.createElement('input');
+
+        fileInput.type = 'file';
+        fileInput.accept = 'audio/mpeg';
+
+        let currentFile = null;
+
+        // Format time helper
+        function formatTime(seconds) {
+            if (!isFinite(seconds)) return '--:--';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Handle file selection
+        function loadAudio(file) {
+            if (!file.type.startsWith('audio/')) {
+                alert('Please select an audio file');
+                return;
+            }
+
+            currentFile = file;
+            const url = URL.createObjectURL(file);
+            audio.src = url;
+
+            // Update UI
+            const fileName = file.name.replace(/\.[^/.]+$/, '').toUpperCase();
+            trackName.textContent = fileName;
+            vinyl.classList.remove('placeholder');
+            
+            // Enable controls
+            playBtn.disabled = false;
+            stopBtn.disabled = false;
+
+            // Reset playback
+            audio.currentTime = 0;
+            updateTime();
+        }
+
+        // Update time display
+        function updateTime() {
+            const current = formatTime(audio.currentTime);
+            const duration = formatTime(audio.duration);
+            trackTime.textContent = `${current} / ${duration}`;
+            
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = percent + '%';
+            }
+        }
+
+        // Play/Pause
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                vinyl.classList.add('playing');
+                needle.classList.add('active');
+                playBtn.textContent = '⏸ PAUSE';
+            } else {
+                audio.pause();
+                vinyl.classList.remove('playing');
+                needle.classList.remove('active');
+                playBtn.textContent = '▶ PLAY';
+            }
+        });
+
+        // Stop
+        stopBtn.addEventListener('click', () => {
+            audio.pause();
+            audio.currentTime = 0;
+            vinyl.classList.remove('playing');
+            needle.classList.remove('active');
+            playBtn.textContent = '▶ PLAY';
+            updateTime();
+        });
+
+        // Previous (restart)
+        prevBtn.addEventListener('click', () => {
+            audio.currentTime = 0;
+            if (!audio.paused) {
+                audio.play();
+            }
+        });
+
+        // Progress bar click
+        progressBar.addEventListener('click', (e) => {
+            if (!audio.src) return;
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+
+        // Audio events
+        audio.addEventListener('timeupdate', updateTime);
+        audio.addEventListener('ended', () => {
+            vinyl.classList.remove('playing');
+            needle.classList.remove('active');
+            playBtn.textContent = '▶ PLAY';
+        });
+        audio.addEventListener('loadedmetadata', updateTime);
+
+        // Drag and drop
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                loadAudio(e.target.files[0]);
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) {
+                loadAudio(files[0]);
+            }
+        }, false);
+    </script>
+</body>
+</html>
